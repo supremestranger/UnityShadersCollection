@@ -3,6 +3,7 @@ Shader "BlinnPhong" {
         [NoScaleOffset]
         _MainTex ("Texture", 2D) = "white" {}
         _SpecTex ("SpecTex", 2D) = "white" {}
+        _LutTex ("Lut", 2D) = "white" {}
         _Color ("Color", Color) = (1,1,1,1)
         _Glossiness ("Glossy", Range(1,64)) = 16
     }
@@ -28,6 +29,7 @@ Shader "BlinnPhong" {
 
             sampler2D _MainTex;
             sampler2D _SpecTex;
+            sampler2D _LutTex;
             half _Glossiness;
             fixed4 _Color;
 
@@ -52,10 +54,12 @@ Shader "BlinnPhong" {
 
                 fixed diff = max(0, dot(normal, lightDir));
                 fixed spec = max(0, dot(normal, halfwayDir));
+                fixed4 lutTex = tex2D(_LutTex, fixed2(spec, _Glossiness / 64));
 
                 fixed3 diffuseCol = diff * _LightColor0.rgb * mainTex * _Color;
-                float3 glossyCol = _LightColor0.rgb * specTex * pow(spec, _Glossiness);
                 fixed3 ambientCol = UNITY_LIGHTMODEL_AMBIENT * mainTex * _Color;
+
+                float3 glossyCol = _LightColor0.rgb * specTex * lutTex.r;
                 
                 fixed3 light = diffuseCol + glossyCol + ambientCol;
 
