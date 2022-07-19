@@ -59,7 +59,7 @@ Shader "BlinnPhong" {
                 fixed3 diffuseCol = diff * _LightColor0.rgb * mainTex * _Color;
                 fixed3 ambientCol = UNITY_LIGHTMODEL_AMBIENT * mainTex * _Color;
 
-                float3 glossyCol = _LightColor0.rgb * specTex * lutTex.r;
+                float3 glossyCol = _LightColor0.rgb * specTex.r * lutTex.r;
                 
                 fixed3 light = diffuseCol + glossyCol + ambientCol;
 
@@ -90,6 +90,7 @@ Shader "BlinnPhong" {
 
             sampler2D _MainTex;
             sampler2D _SpecTex;
+            sampler2D _LutTex;
             half _Glossiness;
             fixed4 _Color;
 
@@ -115,9 +116,10 @@ Shader "BlinnPhong" {
 
                 fixed diff = max(0, dot(normal, lightDir));
                 fixed spec = max(0, dot(normal, halfwayDir));
+                fixed4 lutTex = tex2D(_LutTex, fixed2(spec, _Glossiness / 64));
 
                 fixed3 diffuseCol = diff * _LightColor0.rgb * mainTex * _Color;
-                float3 glossyCol = _LightColor0.rgb * specTex * pow(spec, _Glossiness);
+                float3 glossyCol = _LightColor0.rgb * specTex.r * lutTex.r;
                 
                 fixed3 light = diffuseCol + glossyCol;
 
